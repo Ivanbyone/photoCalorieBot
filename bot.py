@@ -1,15 +1,14 @@
 """ Starting bot """
 
 import asyncio
+import logging
 
-from aiogram import Bot, Dispatcher
-
-from config.config import token
+from config.config import bot, dp
 from handlers.main_commands import commands
+from handlers.callbacks import callback
+from utils.command_helper import set_commands
 
-bot = Bot(token=token)
-dp = Dispatcher()
-
+bot_logger = logging.getLogger(__name__)
 
 async def main() -> None:
     """
@@ -17,9 +16,22 @@ async def main() -> None:
     :return: None
     """
 
+    # Config for logging events
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(filename)s:%(lineno)d #%(levelname)-8s '
+               '[%(asctime)s] - %(name)s - %(message)s')
+
+    # Level info for starting Bot
+    bot_logger.info('Bot has been started...')
+
     dp.include_routers(
-        commands.router
+        commands.router,
+        callback.callbacks
     )
+
+    dp.startup.register(set_commands)
+
     await dp.start_polling(bot)
 
 

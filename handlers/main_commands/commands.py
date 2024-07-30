@@ -2,17 +2,27 @@
 
 import random
 
-from aiogram import Router
-from aiogram.filters import CommandStart
+from aiogram import Router, Bot
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
+from aiogram.utils.markdown import text
 
-from bot import bot
+from markups.markups import keyboard
+from bot import bot_logger
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def start_handler(message: Message) -> None:
+async def start_handler(message: Message, bot: Bot) -> None:
+    """
+    Handler for /start command
+    :param message: aiogram type class Message
+    :param bot: aiogram class Bot
+    :return: None
+    """
+
+    bot_logger.info("Command start pressed!")
 
     start_stickers = [
         r"CAACAgIAAxkBAAELT7Blvrn134vxH3rbovLj7TwGg-5RtgACRQMAArVx2gaTiBAcidwNGzQE",
@@ -30,5 +40,41 @@ async def start_handler(message: Message) -> None:
     await bot.send_sticker(chat_id=message.from_user.id,
                            sticker=random.choice(start_stickers))
     await bot.send_message(chat_id=message.from_user.id,
-                           text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ бот, который умеет определять калорийность твоего приема пищи по фото и давать рекомендации на уровне топового нутрициолога, а также поможет тебе проанализировать твой собственный рецепт.\n\nВНИМАНИЕ: доступ к боту дается на 2 дня!",
+                           text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
+                           parse_mode="html",
+                           reply_markup=keyboard)
+
+
+@router.message(Command("help"))
+async def start_handler(message: Message, bot: Bot) -> None:
+    """
+    Help command for users with some info about bot functions
+    :param message: aiogram type class Message
+    :param bot: aiogram class Bot
+    :return: None
+    """
+
+    help_msg = text(
+        "Мой функционал:\n\n",
+        "/start - перезапуск бота\n",
+        "/help - посмотреть возможности и доступный функционал\n",
+        "/profile - посмотреть Ваш профиль"
+    )
+
+    await bot.send_message(chat_id=message.from_user.id,
+                           text=help_msg,
+                           parse_mode="html")
+
+
+@router.message(Command("profile"))
+async def start_handler(message: Message, bot: Bot) -> None:
+    """
+    Show user profile
+    :param message: aiogram type class Message
+    :param bot: aiogram class Bot
+    :return: None
+    """
+
+    await bot.send_message(chat_id=message.from_user.id,
+                           text="Ваш профиль:",
                            parse_mode="html")
