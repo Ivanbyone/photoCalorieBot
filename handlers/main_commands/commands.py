@@ -1,6 +1,7 @@
 """ Main commands """
 
 import random
+import time
 
 from aiogram import Router, Bot
 from aiogram.filters import CommandStart, Command
@@ -37,8 +38,13 @@ async def start_handler(message: Message, bot: Bot) -> None:
         r"CAACAgIAAxkBAAELT7llvsMxV_5CcFYxCSdEYaEVWKizGQACbgADwDZPE22H7UqzeJmXNAQ"
     ]
 
-    await bot.send_sticker(chat_id=message.from_user.id,
-                           sticker=random.choice(start_stickers))
+    msg = await bot.send_sticker(chat_id=message.from_user.id,
+                                 sticker=random.choice(start_stickers))
+
+    time.sleep(1)
+
+    await msg.delete()
+
     await bot.send_message(chat_id=message.from_user.id,
                            text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
                            parse_mode="html",

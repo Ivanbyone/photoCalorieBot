@@ -13,3 +13,5 @@ payments_test_token: str = os.getenv("PAYMENTS_TOKEN_TEST")
 
 bot = Bot(token=token)
 dp = Dispatcher()
+
+openAI_token: str = os.getenv("openAIToken")
