@@ -25,13 +25,19 @@ button_support = InlineKeyboardButton(
 
 button_profile = InlineKeyboardButton(
     text='👤 Профиль',
-    callback_data='big_button_5_pressed'
+    callback_data='profile_button_pressed'
 )
 
 button_peach_recipes_bot = InlineKeyboardButton(
     text='🤩 Лучшие рецепты с КБЖУ',
     callback_data='big_button_6_pressed',
-    url="https://t.me/lisa_peach1_recipes_bot"
+    url='https://t.me/lisa_peach1_recipes_bot'
+)
+
+button_developer_profile = InlineKeyboardButton(
+    text='👨‍💻 Разработка ботов',
+    callback_data='developer_button_pressed',
+    url='https://t.me/ivanbyone'
 )
 
 # Сreating object of inline keyboard
@@ -41,5 +47,6 @@ keyboard = InlineKeyboardMarkup(
                      [button_buy_premium],
                      [button_support],
                      [button_profile],
-                     [button_peach_recipes_bot]]
+                     [button_peach_recipes_bot],
+                     [button_developer_profile]]
 )

@@ -1,5 +1,6 @@
 """ Main commands """
 
+import datetime
 import random
 import time
 
@@ -10,6 +11,7 @@ from aiogram.utils.markdown import text
 
 from markups.markups import keyboard
 from bot import bot_logger
+from data.db_commands import insert_user_to_base, send_profile, validate_user
 
 router = Router()
 
@@ -41,14 +43,35 @@ async def start_handler(message: Message, bot: Bot) -> None:
     msg = await bot.send_sticker(chat_id=message.from_user.id,
                                  sticker=random.choice(start_stickers))
 
-    time.sleep(1)
+    validate = await validate_user(message.from_user.id)
 
-    await msg.delete()
+    if len(validate) == 0:
+        date = datetime.datetime.utcnow()
 
-    await bot.send_message(chat_id=message.from_user.id,
-                           text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
-                           parse_mode="html",
-                           reply_markup=keyboard)
+        await insert_user_to_base(tg_id=message.from_user.id,
+                                  username=message.from_user.full_name,
+                                  attempts=0,
+                                  register_date=date
+                                  )
+
+        time.sleep(1)
+
+        await msg.delete()
+
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
+                               parse_mode="html",
+                               reply_markup=keyboard)
+    else:
+
+        time.sleep(1)
+
+        await msg.delete()
+
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
+                               parse_mode="html",
+                               reply_markup=keyboard)
 
 
 @router.message(Command("help"))
@@ -81,6 +104,8 @@ async def start_handler(message: Message, bot: Bot) -> None:
     :return: None
     """
 
+    profile = dict(await send_profile(message.from_user.id))
+
     await bot.send_message(chat_id=message.from_user.id,
-                           text="Ваш профиль:",
+                           text=f"Ваш профиль:\n\n{profile['role']}\nid: {profile['telegramId']}\nИмя: {profile['userName']}\nКоличество попыток: {profile['attempts']}\nДата регистрации: {profile['registerDate']}",
                            parse_mode="html")
