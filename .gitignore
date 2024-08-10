@@ -5,3 +5,4 @@ __pycache__/
 handlers/__pycache__/
 config/__pycache__/
 markups/__pycache__/
+.DS_Store
