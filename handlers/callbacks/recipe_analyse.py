@@ -1,4 +1,5 @@
-""" Callbacks handlers """
+""" """
+
 import time
 
 from aiogram import Router, F, Bot
@@ -8,11 +9,12 @@ from aiogram.fsm.state import default_state
 from aiogram.fsm.context import FSMContext
 
 from utils.FSM_states import FsmStates
+from gpt.requests_gpt import recipe_to_gpt
 
-photo_analyse = Router()
+recipe_analyse = Router()
 
 
-@photo_analyse.callback_query(F.data == "button_photo_analyse_pressed", StateFilter(default_state))
+@recipe_analyse.callback_query(F.data == "button_recipe_analyse_pressed", StateFilter(default_state))
 async def photo_analyse_callback(call: CallbackQuery, state: FSMContext) -> None:
     """
 
@@ -23,19 +25,15 @@ async def photo_analyse_callback(call: CallbackQuery, state: FSMContext) -> None
 
     await call.message.delete()
 
-    await call.message.answer("Отправьте фото вашего блюда!")
+    await call.message.answer("Я помогу тебе рассчитать КБЖУ сложного блюда. Для этого напиши мне какие ингридиенты ты используешь и в каком количестве, а также укажи количество порций.")
 
-    await state.set_state(FsmStates.send_photo)
+    await state.set_state(FsmStates.send_recipe)
 
 
-@photo_analyse.message(StateFilter(FsmStates), F.photo[-1].as_('largest_photo'))
-async def user_send_photo(message: Message, bot: Bot, state: FSMContext, largest_photo: PhotoSize) -> None:
+@recipe_analyse.message(StateFilter(FsmStates))
+async def user_send_recipe(message: Message, bot: Bot, state: FSMContext):
     """
 
-    :param message:
-    :param bot:
-    :param state:
-    :param largest_photo:
     :return:
     """
 
@@ -43,16 +41,12 @@ async def user_send_photo(message: Message, bot: Bot, state: FSMContext, largest
                                  text=f"<i>Запрос обрабатывается...</i>",
                                  parse_mode="html")
 
-    time.sleep(2)
-
-    photo = message.photo[0].file_id
-    file_info = await bot.get_file(photo)
-    print(f'file_path: {file_info.file_path}')
+    gpt_response = recipe_to_gpt(text=message.text)
 
     await msg.delete()
 
     await bot.send_message(chat_id=message.from_user.id,
-                           text=f"Результат:",
+                           text=f"Результат по вашему запросу:\n\n{gpt_response}",
                            parse_mode="html")
 
     await state.clear()

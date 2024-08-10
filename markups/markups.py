@@ -4,12 +4,12 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 button_photo_analyse = InlineKeyboardButton(
     text='🥗 Анализатор по фото',
-    callback_data='big_button_1_pressed'
+    callback_data='button_photo_analyse_pressed'
 )
 
 button_recipe_analyse = InlineKeyboardButton(
     text='🌮 Анализатор рецепта',
-    callback_data='big_button_2_pressed'
+    callback_data='button_recipe_analyse_pressed'
 )
 
 button_buy_premium = InlineKeyboardButton(

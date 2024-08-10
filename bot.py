@@ -5,7 +5,7 @@ import logging
 
 from config.config import bot, dp
 from handlers.main_commands import commands
-from handlers.callbacks import photo_analyse, user_profile
+from handlers.callbacks import photo_analyse, user_profile, recipe_analyse
 from utils.command_helper import set_commands
 
 bot_logger = logging.getLogger(__name__)
@@ -28,7 +28,8 @@ async def main() -> None:
     dp.include_routers(
         commands.router,
         photo_analyse.photo_analyse,
-        user_profile.profile
+        user_profile.profile,
+        recipe_analyse.recipe_analyse
     )
 
     dp.startup.register(set_commands)
