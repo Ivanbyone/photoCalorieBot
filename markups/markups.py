@@ -3,17 +3,17 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 button_photo_analyse = InlineKeyboardButton(
-    text='🥗 Анализатор по фото',
+    text='🥗 Анализ по фото',
     callback_data='button_photo_analyse_pressed'
 )
 
 button_recipe_analyse = InlineKeyboardButton(
-    text='🌮 Анализатор рецепта',
+    text='🌮 Рецепты с КБЖУ',
     callback_data='button_recipe_analyse_pressed'
 )
 
-button_buy_premium = InlineKeyboardButton(
-    text='🥑 Купить премиум версию',
+button_info = InlineKeyboardButton(
+    text='🔥 Пошаговый план + трекер',
     callback_data='big_button_3_pressed'
 )
 
@@ -28,25 +28,49 @@ button_profile = InlineKeyboardButton(
     callback_data='profile_button_pressed'
 )
 
-button_peach_recipes_bot = InlineKeyboardButton(
-    text='🤩 Лучшие рецепты с КБЖУ',
-    callback_data='big_button_6_pressed',
-    url='https://t.me/lisa_peach1_recipes_bot'
+button_pay = InlineKeyboardButton(
+    text='⭐ Оплата',
+    callback_data='pay_button_pressed'
 )
 
 button_developer_profile = InlineKeyboardButton(
-    text='👨‍💻 Разработка ботов',
-    callback_data='developer_button_pressed',
-    url='https://t.me/ivanbyone'
+    text='🤔 Как пользоваться ботом?',
+    callback_data='developer_button_pressed'
 )
 
-# Сreating object of inline keyboard
+button_back = InlineKeyboardButton(
+    text='Назад',
+    callback_data='/start'
+    # url='https://t.me/photo_calorie_bot?start=xxx'
+)
+
+button_edit_profile = InlineKeyboardButton(
+    text='Редактировать профиль',
+    callback_data='button_edit_profile'
+)
+
+button_choose_gender = InlineKeyboardButton(
+    text='Выбрать пол',
+    callback_data='choose_gender'
+)
+
+# Сreating objects of inline keyboard
 keyboard = InlineKeyboardMarkup(
     inline_keyboard=[[button_photo_analyse],
                      [button_recipe_analyse],
-                     [button_buy_premium],
-                     [button_support],
+                     [button_info],
                      [button_profile],
-                     [button_peach_recipes_bot],
-                     [button_developer_profile]]
+                     [button_pay],
+                     [button_developer_profile],
+                     [button_support]]
+)
+
+keyboard_profile = InlineKeyboardMarkup(
+    inline_keyboard=[[button_edit_profile],
+                     [button_back]]
+)
+
+keyboard_edit_profile = InlineKeyboardMarkup(
+    inline_keyboard=[[button_choose_gender],
+                     [button_back]]
 )

@@ -50,6 +50,7 @@ class ChatGPT:
             top_p=1
         )
 
+        print(response.choices[0])
         return response.choices[0]
 
 

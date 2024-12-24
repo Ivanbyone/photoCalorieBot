@@ -1,29 +1,32 @@
 """ Main commands """
 
+import asyncio
 import datetime
 import random
-import time
 
-from aiogram import Router, Bot
+from aiogram import Router, Bot, F
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.utils.markdown import text
+from aiogram.fsm.context import FSMContext
 
 from markups.markups import keyboard
 from bot import bot_logger
-from data.db_commands import insert_user_to_base, send_profile, validate_user
+from data.dbconnect import mongoBase
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def start_handler(message: Message, bot: Bot) -> None:
+async def start_handler(message: Message, bot: Bot, state: FSMContext) -> None:
     """
     Handler for /start command
     :param message: aiogram type class Message
     :param bot: aiogram class Bot
     :return: None
     """
+
+    await state.clear()
 
     bot_logger.info("Command start pressed!")
 
@@ -41,37 +44,81 @@ async def start_handler(message: Message, bot: Bot) -> None:
     ]
 
     msg = await bot.send_sticker(chat_id=message.from_user.id,
-                                 sticker=random.choice(start_stickers))
+                                 sticker=random.choice(start_stickers),
+                                 reply_markup=ReplyKeyboardRemove())
 
-    validate = await validate_user(message.from_user.id)
+    validate = await mongoBase.send_profile(message.from_user.id)
 
-    if len(validate) == 0:
-        date = datetime.datetime.utcnow()
+    bot_logger.info(f"Validation was carried out for {message.from_user.id}")
 
-        await insert_user_to_base(tg_id=message.from_user.id,
-                                  username=message.from_user.full_name,
-                                  attempts=0,
-                                  register_date=date
-                                  )
+    if validate == None:
 
-        time.sleep(1)
+        bot_logger.info("User is not authorized!")
+
+        date = datetime.datetime.utcnow().isoformat()
+
+        await mongoBase.insert_user_to_base(tg_id=message.from_user.id,
+                                            username=message.from_user.full_name,
+                                            attempts=0,
+                                            register_date=date,
+                                            role="user",
+                                            gender="Не указан",
+                                            age="Не указан",
+                                            weight="Не указан",
+                                            height="Не указан",
+                                            target="Не указана"
+                                            )
+
+        bot_logger.info(f"User with {message.from_user.id} was created in database!")
+
+        await asyncio.sleep(1)
 
         await msg.delete()
 
         await bot.send_message(chat_id=message.from_user.id,
-                               text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
+                               text=f"Привет! Я дам тебе пошаговый план как скинуть лишние килограммы и прийти к гармоничным отношениям с едой без отказа от любимых продуктов 🔥. А также проанализирую твой рацион по фото и помогу с вкусными и сбалансированными рецептами, которые помогут тебе достичь своей цели 🤓",
+                               parse_mode="html",
+                               reply_markup=keyboard)
+
+        await bot.delete_message(message.chat.id, message.message_id)
+
+    else:
+
+        bot_logger.info("User is authorized!")
+
+        await asyncio.sleep(1.2)
+
+        await msg.delete()
+
+        await bot.send_message(chat_id=message.from_user.id,
+                               text=f"И снова, здравствуй ✋\n\nЯ дам тебе пошаговый план как скинуть лишние килограммы и прийти к гармоничным отношениям с едой без отказа от любимых продуктов 🔥. А также проанализирую твой рацион по фото и помогу с вкусными и сбалансированными рецептами, которые помогут тебе достичь своей цели 🤓",
+                               parse_mode="html",
+                               reply_markup=keyboard)
+
+        await asyncio.sleep(0.8)
+
+        await bot.delete_message(message.chat.id, message.message_id)
+
+
+@router.callback_query(F.data == "/start")
+@router.callback_query(F.data == "start_msg")
+async def start(call: CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    if call.data == "/start":
+        await call.message.edit_text(
+                               text=f"Привет! Я дам тебе пошаговый план как скинуть лишние килограммы и прийти к гармоничным отношениям с едой без отказа от любимых продуктов 🔥. А также проанализирую твой рацион по фото и помогу с вкусными и сбалансированными рецептами, которые помогут тебе достичь своей цели 🤓",
                                parse_mode="html",
                                reply_markup=keyboard)
     else:
-
-        time.sleep(1)
-
-        await msg.delete()
-
-        await bot.send_message(chat_id=message.from_user.id,
-                               text=f"Привет, <b>{message.from_user.full_name}</b> ✋\n\nЯ определю калорийность твоего рациона по фото и дам рекомендации на уровне топового нутрициолога. С моей помощью ты также сможешь проанализировать свой собственный рецепт 😎\n\nВНИМАНИЕ: бесплатный доступ к боту дается на 2 дня!",
+        await call.message.answer(
+                               text=f"Привет! Я дам тебе пошаговый план как скинуть лишние килограммы и прийти к гармоничным отношениям с едой без отказа от любимых продуктов 🔥. А также проанализирую твой рацион по фото и помогу с вкусными и сбалансированными рецептами, которые помогут тебе достичь своей цели 🤓",
                                parse_mode="html",
                                reply_markup=keyboard)
+
 
 
 @router.message(Command("help"))
@@ -90,9 +137,12 @@ async def start_handler(message: Message, bot: Bot) -> None:
         "/profile - посмотреть Ваш профиль"
     )
 
+    bot_logger.info(f"Help message for {message.from_user.id}")
+
     await bot.send_message(chat_id=message.from_user.id,
                            text=help_msg,
-                           parse_mode="html")
+                           parse_mode="html",
+                           reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(Command("profile"))
@@ -104,7 +154,7 @@ async def start_handler(message: Message, bot: Bot) -> None:
     :return: None
     """
 
-    profile = dict(await send_profile(message.from_user.id))
+    profile = dict(await mongoBase.send_profile(message.from_user.id))
 
     await bot.send_message(chat_id=message.from_user.id,
                            text=f"Ваш профиль:\n\n{profile['role']}\nid: {profile['telegramId']}\nИмя: {profile['userName']}\nКоличество попыток: {profile['attempts']}\nДата регистрации: {profile['registerDate']}",

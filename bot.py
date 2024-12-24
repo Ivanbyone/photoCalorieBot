@@ -1,14 +1,16 @@
 """ Starting bot """
-
 import asyncio
 import logging
 
 from config.config import bot, dp
 from handlers.main_commands import commands
-from handlers.callbacks import photo_analyse, user_profile, recipe_analyse
+from handlers.callbacks import photo_analyse, user_profile, info, helper
+from handlers.callbacks.recipes import recipe_callback, deserts, chicken, ground_meat, oatmeal, cheese, roll, avocado, tuna, salads, pancakes, eggs
+from handlers.callbacks.payments import payments, recipe_payments, photo_payments
 from utils.command_helper import set_commands
 
 bot_logger = logging.getLogger(__name__)
+
 
 async def main() -> None:
     """
@@ -18,7 +20,7 @@ async def main() -> None:
 
     # Config for logging events
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.WARNING,
         format='%(filename)s:%(lineno)d #%(levelname)-8s '
                '[%(asctime)s] - %(name)s - %(message)s')
 
@@ -29,7 +31,22 @@ async def main() -> None:
         commands.router,
         photo_analyse.photo_analyse,
         user_profile.profile,
-        recipe_analyse.recipe_analyse
+        info.info_router,
+        recipe_callback.recipes,
+        payments.router,
+        recipe_payments.router,
+        deserts.router,
+        chicken.router,
+        ground_meat.router,
+        oatmeal.router,
+        cheese.router,
+        roll.router,
+        avocado.router,
+        tuna.router,
+        salads.router,
+        pancakes.router,
+        eggs.router,
+        helper.helper_router
     )
 
     dp.startup.register(set_commands)
