@@ -121,10 +121,6 @@ async def successful_recipes_payment(message: Message, bot: Bot) -> None:
 
 
     elif payload == "photo_pay1":
-        await bot.refund_star_payment(
-            user_id=message.from_user.id,
-            telegram_payment_charge_id=message.successful_payment.telegram_payment_charge_id
-        )
 
         await mongoBase.save_photo_payment(tg_id=message.from_user.id, username=message.from_user.username,
                                            transaction=message.successful_payment.telegram_payment_charge_id,
